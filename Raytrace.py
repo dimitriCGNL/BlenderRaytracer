@@ -1,7 +1,7 @@
 bl_info = {
     "name": "Ray Tracing Module",
     "author": "Dimitri Croes",
-    "version": (0, 0, 1),
+    "version": (0, 0, 2),
     "blender": (2, 90, 1),
     "location": "3D View Toolbar",
     "description": "Ray based impuls response calculator",
@@ -94,23 +94,18 @@ class Raytracing(Operator):
     bl_idname = "ray.raytrace"
     bl_label = "Start Raytrace"
 
-    
-    
-
-    def get_create_object(scene):
-        ob = scene.objects.get(OBJECT_NAME)
-        if ob == None:
-            me = bpy.data.meshes.new("Ray")
-            ob = bpy.data.objects.new(OBJECT_NAME, me)
-            scene.collection.objects.link(ob)
-        return ob
-
     def execute(self, context):
         print("Starting")
         scene = bpy.context.scene
         myvar = scene.my_var
-        os.remove(bpy.path.abspath(os.path.join(os.path.dirname(myvar.my_path) , "L.txt")))
-        os.remove(bpy.path.abspath(os.path.join(os.path.dirname(myvar.my_path) , "D.txt")))
+        try:
+            os.remove(bpy.path.abspath(os.path.join(os.path.dirname(myvar.my_path) , "L.txt")))
+        except:
+            print("No old files detected")
+        try:
+            os.remove(bpy.path.abspath(os.path.join(os.path.dirname(myvar.my_path) , "D.txt")))
+        except:
+            print("No old files detected")
         EPSILON = 0.00001
         MAXIMUM_ITERATIONS = myvar.max_i
         Step=myvar.step_size
@@ -155,20 +150,20 @@ class Raytracing(Operator):
                         d=d/v
                         L.append(I)
                         D.append(d)
+                        print("alpha: " + str(alpha) + " phi: " + str(phi) + " At listerner 1")
                         break
                     R=float(ob.active_material.name)
                     I=I*R
-                    
                     rot_dif = direction.rotation_difference(normal)
                     direction.rotate(rot_dif)
                     direction.rotate(rot_dif)
                     direction *= -1
                     points.append(location)
                     if i == MAXIMUM_ITERATIONS-1:
-                        I=0
-                        d=d/v
-                        L.append(I)
-                        D.append(d)
+                        #I=0
+                        #d=d/v
+                        #L.append(I)
+                        #D.append(d)
                         break
                     
 
@@ -193,12 +188,6 @@ class Raytracing(Operator):
 
         
         
-        
-    #for h in bpy.app.handlers.depsgraph_update_post:
-    #    bpy.app.handlers.depsgraph_update_post.remove(h) 
-    #bpy.app.handlers.depsgraph_update_post.append(do_raycast)
-
-
 
 class RayTracePanel(Panel):
     """Creates a Panel in the scene context of the properties editor"""
